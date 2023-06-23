@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from PIL import ImageTk, Image
-from Checkers import Checkers, Positions
+from Checkers import Checkers
 from enum import Enum
 import time
 
@@ -30,7 +30,7 @@ EVALUATION_FUNCTION = Checkers.evaluate2
 
 class GUI:
 
-    def __init__(self) -> None:
+    def __init__(self):
         super().__init__()
         self.game = Checkers(CHECKER_SIZE)
         self.history = [self.game.getBoard()]
@@ -66,19 +66,19 @@ class GUI:
         self.windowsize = self.game.size * IMG_SIZE
         self.canvas = tk.Canvas(master=window, width=480, height=480, bg='WHITE')
         self.canvas.pack()
+        #
+        # frm_options = tk.Frame(master=window)
+        # frm_options.pack(expand=True)
+        # btn_undo = tk.Button(master=frm_options, command=self.undo, text="Undo")
+        # btn_undo.pack(side=tk.LEFT, padx=5, pady=5)
+        #
+        # btn_redo = tk.Button(master=frm_options, command=self.redo, text="Redo")
+        # btn_redo.pack(side=tk.LEFT, padx=5, pady=5)
 
-        frm_options = tk.Frame(master=window)
-        frm_options.pack(expand=True)
-        btn_undo = tk.Button(master=frm_options, command=self.undo, text="Undo")
-        btn_undo.pack(side=tk.LEFT, padx=5, pady=5)
-
-        btn_redo = tk.Button(master=frm_options, command=self.redo, text="Redo")
-        btn_redo.pack(side=tk.LEFT, padx=5, pady=5)
-
-        frm_counter = tk.Frame(master=window)
-        frm_counter.pack(expand=True)
-        self.lbl_counter = tk.Label(master=frm_counter)
-        self.lbl_counter.pack()
+        # frm_counter = tk.Frame(master=window)
+        # frm_counter.pack(expand=True)
+        # self.lbl_counter = tk.Label(master=frm_counter)
+        # self.lbl_counter.pack()
 
         self.canvas.bind("<Button-1>", self.click)
 
@@ -127,7 +127,7 @@ class GUI:
                 self.canvas.create_text(x1+30, y1+30, text=f'{row},{col}')
                 f = not f
 
-        self.lbl_counter['text'] = f'Moves without capture: {self.cnt}'
+        # self.lbl_counter['text'] = f'Moves without capture: {self.cnt}'
         window.update()
 
         nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
@@ -265,29 +265,29 @@ class GUI:
         self.history = self.history[:self.historyPtr+1]
         self.history.append(self.game.getBoard())
         self.historyPtr += 1
-
-    def undo(self):
-        if self.historyPtr > 0 and not self.willCapture:
-            self.historyPtr -= 1
-            self.game.setBoard(self.history[self.historyPtr])
-            self.update()
-
-            self.lastX = self.lastY = None
-            nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
-            self.highlight(nextPositions)
-        else:
-            print("Can't undo")
-    
-    def redo(self):
-        if self.historyPtr < len(self.history)-1 and not self.willCapture:
-            self.historyPtr += 1
-            self.game.setBoard(self.history[self.historyPtr])
-            self.update()
-
-            self.lastX = self.lastY = None
-            nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
-            self.highlight(nextPositions)
-        else:
-            print("Can't redo")
+    #
+    # def undo(self):
+    #     if self.historyPtr > 0 and not self.willCapture:
+    #         self.historyPtr -= 1
+    #         self.game.setBoard(self.history[self.historyPtr])
+    #         self.update()
+    #
+    #         self.lastX = self.lastY = None
+    #         nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
+    #         self.highlight(nextPositions)
+    #     else:
+    #         print("Can't undo")
+    #
+    # def redo(self):
+    #     if self.historyPtr < len(self.history)-1 and not self.willCapture:
+    #         self.historyPtr += 1
+    #         self.game.setBoard(self.history[self.historyPtr])
+    #         self.update()
+    #
+    #         self.lastX = self.lastY = None
+    #         nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
+    #         self.highlight(nextPositions)
+    #     else:
+    #         print("Can't redo")
 
 GUI()

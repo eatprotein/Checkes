@@ -1,13 +1,9 @@
 from collections import Counter
 import random
-from typing import Callable, List, Tuple
+from typing import List, Tuple
 from copy import deepcopy
 
 Board = List[List[int]]
-Position = Tuple[int, int]
-Positions = List[Position]
-Moves = List[Tuple[Position, Positions]]
-
 
 class Checkers(object):
     """
@@ -24,7 +20,7 @@ class Checkers(object):
     DY = [1, -1, 1, -1]
     OO = 10 ** 9
 
-    def __init__(self, size: int = 8) -> None:
+    def __init__(self, size= 8):
         """Make the initial board of the game
 
         Args:
@@ -65,7 +61,7 @@ class Checkers(object):
 
         self.stateCounter = Counter()
 
-    def printBoard(self, x: int = None, y: int = None):
+    def printBoard(self, x= None, y= None):
         """Print the game board in stdout, the given position is printed in green
 
         Args:
@@ -86,7 +82,7 @@ class Checkers(object):
                     print("\033[0m", end="")
             print()
 
-    def encodeBoard(self) -> int:
+    def encodeBoard(self):
         """Encode the game board so that each state can be represented by a single unique integer
 
         Returns:
@@ -101,23 +97,36 @@ class Checkers(object):
                 value += num * self.board[i][j]
         return value
 
-    def getBoard(self):
-        """Get Game board
+    #
+    # def getBoard(self):
+    #     """Get Game board
+    #
+    #     Returns:
+    #         Board: game board
+    #     """
+    #     return deepcopy(self.board)
 
+    #
+    # def setBoard(self, board: Board):
+    #     """Set game board
+    #
+    #     Args:
+    #         board (Board): board to set the game borad to
+    #     """
+    #     self.board = deepcopy(board)
+
+    def getBoard(self):
+        """获取游戏棋盘。
         Returns:
             Board: game board
         """
-        return deepcopy(self.board)
+        new_board = []
+        for row in self.board:
+            new_row = row[:]
+            new_board.append(new_row)
+        return new_board
 
-    def setBoard(self, board: Board):
-        """Set game board
-
-        Args:
-            board (Board): board to set the game borad to
-        """
-        self.board = deepcopy(board)
-
-    def isValid(self, x: int, y: int) -> bool:
+    def isValid(self, x, y):
         """Check if the given position is inside the board
 
         Args:
@@ -129,7 +138,7 @@ class Checkers(object):
         """
         return x >= 0 and x < self.size and y >= 0 and y < self.size
 
-    def isKing(self, x: int, y: int) -> bool:
+    def isKing(self, x, y):
         """Check if the piece at the given position is a king
         检查给定位置上的棋子是否为王
         Args:
@@ -150,7 +159,7 @@ class Checkers(object):
             return False
 
 
-    def nextPositions(self, x: int, y: int) -> Tuple[Positions, Positions]:
+    def nextPositions(self, x, y):
         """Get the possible next positions for a given position
 
         Args:
@@ -216,7 +225,7 @@ class Checkers(object):
         #                 captureMoves.append((nx, ny))
         # return normalMoves, captureMoves
 
-    def nextMoves(self, player: int) -> Moves:
+    def nextMoves(self, player):
         """Get the next moves of the game board for a certian player
 
         Args:
@@ -239,7 +248,7 @@ class Checkers(object):
             return captureMoves
         return normalMoves
 
-    def playMove(self, x: int, y: int, nx: int, ny: int) -> Tuple[bool, int, bool]:
+    def playMove(self, x, y, nx, ny):
         """Change the board by playing a move from (x, y) to (nx, ny)
 
         Args:
@@ -309,7 +318,7 @@ class Checkers(object):
         return True, removed, False
 
 
-    def undoMove(self, x: int, y: int, nx: int, ny: int, removed=0, promoted=False):
+    def undoMove(self, x, y, nx, ny, removed=0, promoted=False):
         """Undo a move and return the board to its previous state
 
         Args:
@@ -335,9 +344,7 @@ class Checkers(object):
             dy = ny - y
             self.board[x + dx // 2][y + dy // 2] = removed
 
-    def randomPlay(
-        self, player: int, moves: Moves = None, enablePrint=True
-    ) -> Tuple[bool, bool]:
+    def randomPlay(self, player, moves= None, enablePrint=True):
         """play a random play for a given player, 
         if the player should continue capturing, then it will
 
@@ -380,7 +387,7 @@ class Checkers(object):
         reset = removed != 0
         return True, reset
 
-    def evaluate1(self, maximizer: int) -> int:
+    def evaluate1(self, maximizer):
         """evaluate the current state of the board
 
         Args:
@@ -401,7 +408,7 @@ class Checkers(object):
                         score -= (self.board[i][j] + 1) // 2
         return score * 1000
 
-    def cellContains(self, x: int, y: int, player: int) -> bool:
+    def cellContains(self, x, y, player):
         """return if cell at (x, y) contains player
 
         Args:
@@ -414,7 +421,7 @@ class Checkers(object):
         """
         return self.board[x][y] != 0 and self.board[x][y] % 2 == player
 
-    def endGame(self, maximizer: int) -> int:
+    def endGame(self, maximizer):
         """evaluate the current state of the board based on end game strategies
             between maximizer player and the opponent
 
@@ -469,7 +476,7 @@ class Checkers(object):
         else:    # run away
             return score1*1000 + score2 + maximizerCorner*5
 
-    def evaluate2(self, maximizer: int) -> int:
+    def evaluate2(self, maximizer):
         """evaluate the current state of the board
 
         Args:
@@ -522,7 +529,7 @@ class Checkers(object):
                 
         return men*2000 + kings*4000 + backRow*400 + middleBox*250 + middleRow*50 - 300*vulnerable + 300*protected
 
-    def stateValue(self, maximizer: int) -> int:
+    def stateValue(self, maximizer):
         """get value of the board state,
         when the maximizer's pieces is greater than the minimizer's, 
         penalize repeating the same state
@@ -546,17 +553,7 @@ class Checkers(object):
             return -self.stateCounter[self.encodeBoard()]
         return 0
 
-    def minimax(
-        self,
-        player: int,
-        maximizer: int,
-        depth: int = 0,
-        alpha: int = -OO,
-        beta: int = OO,
-        maxDepth: int = 4,
-        evaluate: Callable[[int], int] = evaluate2,
-        moves: Moves = None,
-    ) -> int:
+    def minimax(self,player,maximizer,depth = 0,alpha=float("-inf"), beta=float("inf"),maxDepth= 4,evaluate = evaluate2,moves= None) :
         """Get the score of the board using alpha-beta algorithm
 
         Args:
@@ -636,14 +633,7 @@ class Checkers(object):
 
         return bestValue
 
-    def minimaxPlay(
-        self,
-        player: int,
-        moves: Moves = None,
-        maxDepth: int = 4,
-        evaluate: Callable[[int], int] = evaluate2,
-        enablePrint: bool = True,
-    ) -> Tuple[bool, bool]:
+    def minimaxPlay(self,player,moves= None,maxDepth= 4,evaluate= evaluate2,enablePrint= True):
         """play a move using minimax algorithm
             if the player should continue capturing, it will
 
