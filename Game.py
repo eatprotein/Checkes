@@ -149,7 +149,9 @@ class GUI:
                 self.highlight(nextPositions)
             return
 
-        canCapture, removed, _ = self.game.playMove(self.lastX, self.lastY, x, y)
+        canCapture, removed, promoted= self.game.playMove(self.lastX, self.lastY, x, y)
+
+        # canCapture, removed, _ = self.game.playMove(self.lastX, self.lastY, x, y)
         self.highlight([])
         self.update()
         self.cnt += 1

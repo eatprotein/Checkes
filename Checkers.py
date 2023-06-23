@@ -118,6 +118,7 @@ class Checkers(object):
             bool: the given position is valid
         """
         return x >= 0 and x < self.size and y >= 0 and y < self.size
+
     def isKing(self, x: int, y: int) -> bool:
         """Check if the piece at the given position is a king
         检查给定位置上的棋子是否为王
@@ -150,7 +151,7 @@ class Checkers(object):
             (Positions, Positions): next normal positions, next capture positions
         """
         if self.board[x][y] == 0:
-            return []
+            return [],[]
 
         player = self.board[x][y] % 2
         captureMoves = []
@@ -249,30 +250,58 @@ class Checkers(object):
         if abs(nx - x) == 2:  # capture move
             dx = nx - x
             dy = ny - y
-            removed = self.board[x + dx // 2][y + dy // 2]
-            self.board[x + dx // 2][y + dy // 2] = 0  # remove captured piece
+            # removed = self.board[x + dx // 2][y + dy // 2]
+        #     self.board[x + dx // 2][y + dy // 2] = 0  # remove captured piece
+        #
+        # # promote to king
+        # if self.board[nx][ny] == self.WHITE_MAN and nx == self.size - 1:
+        #     self.board[nx][ny] = self.WHITE_KING
+        #     return False, removed, True
+        # elif self.board[nx][ny] == self.BLACK_MAN and nx == 0:
+        #     self.board[nx][ny] = self.BLACK_KING
+        #     return False, removed, True
+        #
+        # if abs(nx - x) != 2:
+        #     return False, removed, False
+        #
+        # # Regicide -if Man manages to capture King, he is instantly crowned King
+        # if self.board[nx][ny] == self.WHITE_MAN and removed == self.BLACK_KING:
+        #     self.board[nx][ny] = self.WHITE_KING
+        #     return False, removed, True
+        # elif self.board[nx][ny] == self.BLACK_MAN and removed == self.WHITE_KING:
+        #     self.board[nx][ny] = self.BLACK_KING
+        #     return False, removed, True
+        # else:
+        #     return True, removed, False
+        # # return True, removed, False
 
-        # promote to king
+            removed = self.board[x + dx // 2][y + dy // 2]
+            # Check if captured piece is a king
+            if self.isKing(x + dx // 2, y + dy // 2):
+                if self.board[nx][ny] == self.WHITE_MAN:
+                    self.board[nx][ny] = self.WHITE_KING
+                if self.board[nx][ny] == self.BLACK_MAN:
+                    self.board[nx][ny] = self.BLACK_KING
+                self.board[x + dx // 2][y + dy // 2] = 0  # remove captured piece
+                return False, removed, True  # Promote the capturing piece to a king
+
+
+            self.board[x + dx // 2][y + dy // 2] = 0  # remove captured piece
+            return True, removed, False
+
+        # Promote to king if the current piece is a regular piece and reaches the last row
         if self.board[nx][ny] == self.WHITE_MAN and nx == self.size - 1:
             self.board[nx][ny] = self.WHITE_KING
             return False, removed, True
-        elif self.board[nx][ny] == self.BLACK_MAN and nx == 0:
+        if self.board[nx][ny] == self.BLACK_MAN and nx == 0:
             self.board[nx][ny] = self.BLACK_KING
             return False, removed, True
 
         if abs(nx - x) != 2:
             return False, removed, False
 
-        # Regicide -if Man manages to capture King, he is instantly crowned King
-        if self.board[nx][ny] == self.WHITE_MAN and removed == self.BLACK_KING:
-            self.board[nx][ny] = self.WHITE_KING
-            return True, removed, True
-        elif self.board[nx][ny] == self.BLACK_MAN and removed == self.WHITE_KING:
-            self.board[nx][ny] = self.BLACK_KING
-            return True, removed, True
-        else:
-            return True, removed, False
-        # return True, removed, False
+        return True, removed, False
+
 
     def undoMove(self, x: int, y: int, nx: int, ny: int, removed=0, promoted=False):
         """Undo a move and return the board to its previous state
