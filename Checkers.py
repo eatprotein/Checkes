@@ -294,7 +294,13 @@ class Checkers(object):
                     self.board[nx][ny] = self.BLACK_KING
                 self.board[x + dx // 2][y + dy // 2] = 0  # remove captured piece
                 return False, removed, True  # Promote the capturing piece to a king
-
+            else:
+                if self.board[nx][ny] == self.WHITE_MAN and nx == self.size - 1:
+                    self.board[nx][ny] = self.WHITE_KING
+                    return False, removed, True
+                if self.board[nx][ny] == self.BLACK_MAN and nx == 0:
+                    self.board[nx][ny] = self.BLACK_KING
+                    return False, removed, True
 
             self.board[x + dx // 2][y + dy // 2] = 0  # remove captured piece
             return True, removed, False
