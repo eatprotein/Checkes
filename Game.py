@@ -67,26 +67,69 @@ class GUI:
         self.canvas = tk.Canvas(master=window, width=480, height=480, bg='WHITE')
         self.canvas.pack()
         #
-        # frm_options = tk.Frame(master=window)
-        # frm_options.pack(expand=True)
-        # btn_undo = tk.Button(master=frm_options, command=self.undo, text="Undo")
-        # btn_undo.pack(side=tk.LEFT, padx=5, pady=5)
+        frm_options = tk.Frame(master=window)
+        frm_options.pack(expand=True)
+        btn_undo = tk.Button(master=frm_options, command=self.undo, text="Undo")
+        btn_undo.pack(side=tk.LEFT, padx=5, pady=5)
         #
-        # btn_redo = tk.Button(master=frm_options, command=self.redo, text="Redo")
-        # btn_redo.pack(side=tk.LEFT, padx=5, pady=5)
+        btn_redo = tk.Button(master=frm_options, command=self.redo, text="Redo")
+        btn_redo.pack(side=tk.LEFT, padx=5, pady=5)
 
-        # frm_counter = tk.Frame(master=window)
-        # frm_counter.pack(expand=True)
-        # self.lbl_counter = tk.Label(master=frm_counter)
-        # self.lbl_counter.pack()
+        frm_counter = tk.Frame(master=window)
+        frm_counter.pack(expand=True)
+        self.lbl_counter = tk.Label(master=frm_counter)
+        self.lbl_counter.pack()
+
+        # 菜单栏
+        menu_bar = tk.Menu(window)
+        file_menu = tk.Menu(menu_bar, tearoff=False)
+        file_menu.add_command(label="Rule", command=lambda: self.show_rules())
+        menu_bar.add_cascade(label="Help", menu=file_menu)
+        window.config(menu=menu_bar)
+
+        # 建立button
+        btn_rules = tk.Button(master=frm_options, command=lambda: self.show_rules(), text="Rules")
+        btn_rules.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.canvas.bind("<Button-1>", self.click)
-
-        # self.draw_board()
         self.update()
         nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
         self.highlight(nextPositions)
         window.mainloop()
+
+    def show_rules(self):
+        popup_window = tk.Toplevel()
+        popup_window.title("Rules")
+
+        # 添加弹出窗口的内容
+        label1 = tk.Label(popup_window, text="Rules for Checkers")
+        label2 = tk.Label(popup_window, text="""
+        1. Board and pieces:
+        - A standard 8×8 board is used.
+        - Each player starts with 12 pieces, with one side white and the other black.
+        2. Movement rules:
+        - Regular white pieces can only move upwards, and regular black pieces can only move downwards.
+        - Pieces can only move along the diagonal to adjacent spaces.
+        3. Jumping rules:
+        - When a piece jumps over an opponent's piece on an adjacent square, the piece that was jumped over is removed.
+        - Skipping is mandatory, and players must take advantage of skipping opportunities. That is, if the current 
+        player's piece can continue to jump over the opponent's piece during the jumping process, then the player must 
+        continue to jump until there are no more jumping opportunities available.
+        4. King promotion rule:
+        - When a normal piece reaches the last row of the opponent's board (i.e. the opponent's baseline), that piece 
+        is promoted to "King".
+        - When a normal piece captures an opponent's king, it is crowned "king".
+        - A king moves in the same way as a normal piece, but it can move forward and backward in any direction, and 
+        has greater flexibility and jumping ability.
+        5. Victory conditions:
+        - If one player's pieces cannot move further or are eaten by the other player, the game ends.
+        - If neither player is able to meet the win condition, the game is declared a draw.
+        """, anchor='w',justify='left')
+        label1.pack()
+        label2.pack()
+
+        # 设置弹出窗口的大小
+        popup_window.geometry("750x450")
 
     def update(self):
         # 清空画布
@@ -101,6 +144,12 @@ class GUI:
                 y1 = row * IMG_SIZE
                 x2 = x1 + IMG_SIZE
                 y2 = y1 + IMG_SIZE
+                i = IMG_SIZE/10
+                crown = (x1 + 2*i, y1 + 4*i, x1 + 4*i, y1 + 5*i, x1 + 5*i, y1 + 3*i,
+                                               x1 + 6*i, y1 + 5*i, x1 + 8*i, y1 + 4*i, x1 + 8*i, y1 + 5*i,
+                                               x1 + 7*i, y1 + 7*i, x1 + 3*i, y1 + 7*i, x1 + 2*i, y1 + 5*i)
+
+                triangle = (x1+5*i,y1+2*i, x1+2*i, y1+7*i, x1+8*i, y1+7*i)
 
                 if f:
                     self.canvas.create_rectangle(x1, y1, x2, y2, fill="gray")
@@ -109,20 +158,23 @@ class GUI:
 
                 if self.game.board[row][col] == Checkers.BLACK_MAN:
                     self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="black")
+                    print(x1 + 5, y1 + 5, x2 - 5, y2 - 5)
                 elif self.game.board[row][col] == Checkers.BLACK_KING:
                     self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="black")
-                    self.canvas.create_polygon(x1 + 30, y1 + 10, x1 + 20, y1 + 20, x1 + 10, y1 + 10,
-                                               x1 + 15, y1 + 30, x1 + 5, y1 + 40, x1 + 30, y1 + 35,
-                                               x1 + 55, y1 + 40, x1 + 45, y1 + 30, x1 + 50, y1 + 10,
-                                               x1 + 30, y1 + 15, fill="white")
+                    # self.canvas.create_polygon(x1 + 30, y1 + 10, x1 + 20, y1 + 20, x1 + 10, y1 + 10,
+                    #                            x1 + 15, y1 + 30, x1 + 5, y1 + 40, x1 + 30, y1 + 35,
+                    #                            x1 + 55, y1 + 40, x1 + 45, y1 + 30, x1 + 50, y1 + 10,
+                    #                            x1 + 30, y1 + 15, fill="white")
+                    self.canvas.create_polygon(triangle, fill="white")
                 elif self.game.board[row][col] == Checkers.WHITE_MAN:
                     self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="white")
                 elif self.game.board[row][col] == Checkers.WHITE_KING:
                     self.canvas.create_oval(x1 + 5, y1 + 5, x2 - 5, y2 - 5, fill="white")
-                    self.canvas.create_polygon(x1 + 30, y1 + 10, x1 + 20, y1 + 20, x1 + 10, y1 + 10,
-                                               x1 + 15, y1 + 30, x1 + 5, y1 + 40, x1 + 30, y1 + 35,
-                                               x1 + 55, y1 + 40, x1 + 45, y1 + 30, x1 + 50, y1 + 10,
-                                               x1 + 30, y1 + 15, fill="black")
+                    # self.canvas.create_polygon(x1 + 30, y1 + 10, x1 + 20, y1 + 20, x1 + 10, y1 + 10,
+                    #                            x1 + 15, y1 + 30, x1 + 5, y1 + 40, x1 + 30, y1 + 35,
+                    #                            x1 + 55, y1 + 40, x1 + 45, y1 + 30, x1 + 50, y1 + 10,
+                    #                            x1 + 30, y1 + 15, fill="black")
+                    self.canvas.create_polygon(crown, fill="black")
 
                 self.canvas.create_text(x1+30, y1+30, text=f'{row},{col}')
                 f = not f
@@ -151,7 +203,10 @@ class GUI:
             y2 = y1 + IMG_SIZE
             self.canvas.create_rectangle(x1 + 2, y1 + 2, x2 - 2, y2 - 2, outline="red", width=4, tags='highlight')
             # self.btn[x][y]["bg"] = 'yellow'
-            # # self.btn[x][y].config(highlightbackground="yellow", highlightthickness=0, tags='highlight')
+            # # self.btn[x][y].config(highlightbackground="yellow", highlightthickness=0)
+
+    def show_message(self, title, message):
+        messagebox.showinfo(f"{title}", f"{message}")
 
     def click(self, event):
 
@@ -174,13 +229,13 @@ class GUI:
                 positions = normal if len(capture) == 0 else capture
                 self.highlight(positions)
             else:
-                print("Invalid position")
+                self.show_message('warning',"Invalid position!")
             return
 
         normalPositions, capturePositions = self.game.nextPositions(self.lastX, self.lastY)
         positions = normalPositions if (len(capturePositions) == 0) else capturePositions
         if (x,y) not in positions:
-            print("invalid move")
+            self.show_message('warning',"Invalid move!")
             if not self.willCapture:
                 self.lastX = None
                 self.lastY = None
@@ -265,29 +320,29 @@ class GUI:
         self.history = self.history[:self.historyPtr+1]
         self.history.append(self.game.getBoard())
         self.historyPtr += 1
-    #
-    # def undo(self):
-    #     if self.historyPtr > 0 and not self.willCapture:
-    #         self.historyPtr -= 1
-    #         self.game.setBoard(self.history[self.historyPtr])
-    #         self.update()
-    #
-    #         self.lastX = self.lastY = None
-    #         nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
-    #         self.highlight(nextPositions)
-    #     else:
-    #         print("Can't undo")
-    #
-    # def redo(self):
-    #     if self.historyPtr < len(self.history)-1 and not self.willCapture:
-    #         self.historyPtr += 1
-    #         self.game.setBoard(self.history[self.historyPtr])
-    #         self.update()
-    #
-    #         self.lastX = self.lastY = None
-    #         nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
-    #         self.highlight(nextPositions)
-    #     else:
-    #         print("Can't redo")
+
+    def undo(self):
+        if self.historyPtr > 0 and not self.willCapture:
+            self.historyPtr -= 1
+            self.game.setBoard(self.history[self.historyPtr])
+            self.update()
+
+            self.lastX = self.lastY = None
+            nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
+            self.highlight(nextPositions)
+        else:
+            print("Can't undo")
+
+    def redo(self):
+        if self.historyPtr < len(self.history)-1 and not self.willCapture:
+            self.historyPtr += 1
+            self.game.setBoard(self.history[self.historyPtr])
+            self.update()
+
+            self.lastX = self.lastY = None
+            nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
+            self.highlight(nextPositions)
+        else:
+            print("Can't redo")
 
 GUI()
