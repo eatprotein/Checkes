@@ -9,11 +9,6 @@ window = tk.Tk()
 window.title("Checkers")
 
 IMG_SIZE = 60
-black_man_img = ImageTk.PhotoImage(Image.open('assets/black_man.png').resize((IMG_SIZE, IMG_SIZE)))
-black_king_img = ImageTk.PhotoImage(Image.open('assets/black_king.png').resize((IMG_SIZE, IMG_SIZE)))
-white_man_img = ImageTk.PhotoImage(Image.open('assets/white_man.png').resize((IMG_SIZE, IMG_SIZE)))
-white_king_img = ImageTk.PhotoImage(Image.open('assets/white_king.png').resize((IMG_SIZE, IMG_SIZE)))
-blank_img = ImageTk.PhotoImage(Image.open('assets/blank.png').resize((IMG_SIZE, IMG_SIZE)))
 
 difficulty = tk.IntVar()
 message = tk.StringVar()
@@ -32,12 +27,6 @@ GAME_MODE = Mode.SINGLE_PLAYER
 STARTING_PLAYER = Checkers.BLACK
 USED_ALGORITHM = Algorithm.MINIMAX
 EVALUATION_FUNCTION = Checkers.evaluate2
-
-# def from_rgb(rgb):
-#     """translates an rgb tuple of int to a tkinter friendly color code
-#     """
-#     r, g, b = rgb
-#     return f'#{r:02x}{g:02x}{b:02x}'
 
 class GUI:
 
@@ -73,38 +62,10 @@ class GUI:
         self.willCapture = False
         self.cnt = 0
 
-        # # Create main canvas
-        # self.windowsize = self.game.size * IMG_SIZE
-        # self.canvas = tk.Canvas(master=window, width=self.windowsize, height=self.windowsize, bg='WHITE')
-        # self.canvas.pack()
-
-        # 建立一个8*8的矩阵用于存储button
-        # self.btn = [[None]*self.game.size for _ in range(self.game.size)]
-
-        # frm_board = tk.Frame(master=window)
-        # frm_board.pack(fill=tk.BOTH, expand=True)
 
         self.windowsize = self.game.size * IMG_SIZE
         self.canvas = tk.Canvas(master=window, width=480, height=480, bg='WHITE')
         self.canvas.pack()
-
-        # for i in range(self.game.size):
-        #     # frm_board.columnconfigure(i, weight=1, minsize=IMG_SIZE)
-        #     # frm_board.rowconfigure(i, weight=1, minsize=IMG_SIZE)
-        #
-        #     for j in range(self.game.size):
-        #         # Create main canvas
-        #
-        #         # frame = tk.Frame(master=frm_board)
-        #         # frame.grid(row=i, column=j, sticky="nsew")
-        #
-        #         self.btn[i][j] = tk.Button(master=self.canvas, width=IMG_SIZE, height=IMG_SIZE, relief=tk.FLAT)
-        #         # self.btn[i][j].bind("<Button-1>", self.click)
-        #
-        #         self.btn[i][j].bind("<Button-1>", lambda event, row=i, col=j: self.click(event, row, col))
-        #         self.canvas.create_window((30+60*j), (30+60*i), anchor='c', window=self.btn[i][j], width=60, height=60)
-        #         # self.btn[i][j].place(x=(30 + 61 * j), y=(30 + 61 * i), anchor='c', width=50, height=50)
-        #         # self.btn[i][j].pack(expand=True, fill=tk.BOTH)
 
         frm_options = tk.Frame(master=window)
         frm_options.pack(expand=True)
@@ -126,7 +87,6 @@ class GUI:
         nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
         self.highlight(nextPositions)
         window.mainloop()
-        # self.canvas.bind("<Button-1>", handle_click)
 
     def update(self):
         # 清空画布
@@ -172,49 +132,6 @@ class GUI:
 
         nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
         print(nextPositions)
-
-    # def update(self):
-    #     for i in range(self.game.size):
-    #         f = i % 2 == 1
-    #         for j in range(self.game.size):
-    #
-    #             if f:
-    #                 self.btn[i][j]['bg'] = 'gray30'
-    #             else:
-    #                 self.btn[i][j]['bg'] = 'white'
-    #
-    #             # img = blank_img
-    #             # if self.game.board[i][j] == Checkers.BLACK_MAN:
-    #             #     img = black_man_img
-    #             # elif self.game.board[i][j] == Checkers.BLACK_KING:
-    #             #     img = black_king_img
-    #             # elif self.game.board[i][j] == Checkers.WHITE_MAN:
-    #             #     img = white_man_img
-    #             # elif self.game.board[i][j] == Checkers.WHITE_KING:
-    #             #     img = white_king_img
-    #             #
-    #             # self.btn[i][j]["image"] = img
-    #             #
-    #
-    #             img = ''
-    #             if self.game.board[i][j] == Checkers.BLACK_MAN:
-    #                 img = 'B'
-    #             elif self.game.board[i][j] == Checkers.BLACK_KING:
-    #                 img = 'BK'
-    #             elif self.game.board[i][j] == Checkers.WHITE_MAN:
-    #                 img = 'W'
-    #             elif self.game.board[i][j] == Checkers.WHITE_KING:
-    #                 img = 'WK'
-    #
-    #             self.btn[i][j]["text"] = f'{img}({i},{j})'
-    #
-    #             f = not f
-    #     self.lbl_counter['text'] = f'Moves without capture: {self.cnt}'
-    #     window.update()
-    #
-    #     nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
-    #     print(nextPositions)
-
 
     def highlight(self, positions):
         # for x in range(self.game.size):
