@@ -37,6 +37,16 @@ class Checkers(object):
 
         self.size = size
         self.board = []
+        # self.board = [[0, 0, 0, 0, 0, 0, 0, 1],
+        #               [0, 0, 0, 0, 0, 0, 0, 0],
+        #               [0, 1, 0, 1, 0, 0, 0, 0],
+        #               [0, 0, 0, 0, 0, 0, 0, 0],
+        #               [0, 0, 0, 2, 0, 0, 0, 0],
+        #               [0, 0, 0, 0, 2, 0, 0, 0],
+        #               [0, 0, 0, 2, 0, 0, 0, 0],
+        #               [0, 0, 0, 0, 0, 0, 2, 0]
+        #               ]
+
         piece = self.WHITE_MAN
         for i in range(size):
             l = []
@@ -599,9 +609,13 @@ class Checkers(object):
             self.printBoard(nx, ny)
 
         if canCapture:
+            print("这是捕获")
             _, captures = self.nextPositions(nx, ny)
             if len(captures) != 0:
-                self.minimaxPlay(player, [((nx, ny), captures)], maxDepth, evaluate, enablePrint)
+                # self.minimaxPlay(player, [((nx, ny), captures)], maxDepth, evaluate, enablePrint)
+                reset = [((nx, ny), [captures[0]])]
+                return True, reset
+
 
         self.stateCounter[self.encodeBoard()] += 1
         reset = removed != 0

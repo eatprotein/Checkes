@@ -3,6 +3,7 @@ from tkinter import messagebox
 from PIL import ImageTk, Image
 from Checkers import Checkers, Positions
 from enum import Enum
+import time
 
 window = tk.Tk()
 window.title("Checkers")
@@ -25,8 +26,8 @@ class Algorithm(Enum):
     RANDOM = 1
 
 CHECKER_SIZE = 8
-# GAME_MODE = Mode.SINGLE_PLAYER
 GAME_MODE = Mode.SINGLE_PLAYER
+# GAME_MODE = Mode.MULTIPLE_PLAYER
 STARTING_PLAYER = Checkers.BLACK
 USED_ALGORITHM = Algorithm.MINIMAX
 EVALUATION_FUNCTION = Checkers.evaluate2
@@ -122,6 +123,7 @@ class GUI:
                 
                 f = not f
         self.lbl_counter['text'] = f'Moves without capture: {self.cnt}'
+
         window.update()
     
     def highlight(self, positions: Positions):
@@ -194,6 +196,15 @@ class GUI:
                     # self.maxDepth-1 means maxDepth range from 1 to 4
                     cont, reset = self.game.minimaxPlay(1 - self.player, maxDepth=self.maxDepth-1, evaluate=evaluate,
                                                         enablePrint=False)
+                    while type(reset) is list:
+                        time.sleep(0.5)
+                        self.update()
+                        time.sleep(0.5)
+                        cont, reset = self.game.minimaxPlay(1 - self.player, reset,
+                                                            evaluate=evaluate,
+                                                            enablePrint=False)
+                        self.update()
+
             elif USED_ALGORITHM == Algorithm.RANDOM:
                 cont, reset = self.game.randomPlay(1-self.player, enablePrint=False)
             self.cnt += 1
@@ -201,7 +212,10 @@ class GUI:
                 messagebox.showinfo(message="You Won!", title="Checkers")
                 window.destroy()
                 return
+            time.sleep(0.5)
             self.update()
+
+
             if reset:
                 self.cnt = 0
         else:
