@@ -3,6 +3,7 @@ from tkinter import messagebox
 from PIL import ImageTk, Image
 from Checkers import Checkers, Positions
 from enum import Enum
+import time
 
 window = tk.Tk()
 window.title("Checkers")
@@ -14,6 +15,10 @@ white_man_img = ImageTk.PhotoImage(Image.open('assets/white_man.png').resize((IM
 white_king_img = ImageTk.PhotoImage(Image.open('assets/white_king.png').resize((IMG_SIZE, IMG_SIZE)))
 blank_img = ImageTk.PhotoImage(Image.open('assets/blank.png').resize((IMG_SIZE, IMG_SIZE)))
 
+difficulty = tk.IntVar()
+message = tk.StringVar()
+
+
 class Mode(Enum):
     SINGLE_PLAYER = 0
     MULTIPLE_PLAYER = 1
@@ -22,13 +27,11 @@ class Algorithm(Enum):
     RANDOM = 1
 
 CHECKER_SIZE = 8
-# GAME_MODE = Mode.SINGLE_PLAYER
 GAME_MODE = Mode.SINGLE_PLAYER
+# GAME_MODE = Mode.MULTIPLE_PLAYER
 STARTING_PLAYER = Checkers.BLACK
 USED_ALGORITHM = Algorithm.MINIMAX
-MAX_DEPTH = 5
 EVALUATION_FUNCTION = Checkers.evaluate2
-INCREASE_DEPTH = True
 
 # def from_rgb(rgb):
 #     """translates an rgb tuple of int to a tkinter friendly color code
@@ -43,8 +46,19 @@ class GUI:
         self.game = Checkers(CHECKER_SIZE)
         self.history = [self.game.getBoard()]
         self.historyPtr = 0
+        difficulty.set(4)
+        # Set up the message area and difficulty slider
+        panel = tk.Frame(master=window, borderwidth=7)
+        widget = tk.Scale(master=panel, variable=difficulty, orient=tk.HORIZONTAL, from_=1, to=5)
+        widget.pack(side=tk.RIGHT)
+        label = tk.Label(master=panel, text="         ")
+        label.pack(side=tk.RIGHT)
+        label = tk.Label(master=panel, textvariable=message, width=20, bg="seashell")
+        label.pack(side=tk.RIGHT)
+        panel.pack()
 
-        self.maxDepth = MAX_DEPTH
+        # Change difficulty with depth
+        self.maxDepth = difficulty.get()
 
         self.player = STARTING_PLAYER
         if self.player == Checkers.WHITE and GAME_MODE == Mode.SINGLE_PLAYER:
@@ -257,7 +271,9 @@ class GUI:
                 self.highlight(nextPositions)
             return
 
-        canCapture, removed, _ = self.game.playMove(self.lastX, self.lastY, x, y)
+        canCapture, removed, promoted= self.game.playMove(self.lastX, self.lastY, x, y)
+
+        # canCapture, removed, _ = self.game.playMove(self.lastX, self.lastY, x, y)
         self.highlight([])
         self.update()
         self.cnt += 1
@@ -279,16 +295,25 @@ class GUI:
         if GAME_MODE == Mode.SINGLE_PLAYER:
             cont, reset = True, False
             if USED_ALGORITHM == Algorithm.MINIMAX:
-                evaluate = EVALUATION_FUNCTION
-                if self.cnt > 20:
-                    evaluate = Checkers.endGame
-                    if INCREASE_DEPTH:
-                        self.maxDepth = 7
+                self.maxDepth = difficulty.get()
+                if self.maxDepth == 1:
+                    print("这是傻瓜模式")
+                    cont, reset = self.game.randomPlay(1 - self.player, enablePrint=False)
                 else:
-                    evaluate = Checkers.evaluate2
-                    self.maxDepth = MAX_DEPTH
-                    
-                cont, reset = self.game.minimaxPlay(1-self.player, maxDepth=self.maxDepth, evaluate=evaluate, enablePrint=False)
+                    print("AI开始行动了")
+                    evaluate = EVALUATION_FUNCTION
+                    # self.maxDepth-1 means maxDepth range from 1 to 4
+                    cont, reset = self.game.minimaxPlay(1 - self.player, maxDepth=self.maxDepth-1, evaluate=evaluate,
+                                                        enablePrint=False)
+                    while type(reset) is list:
+                        time.sleep(0.5)
+                        self.update()
+                        time.sleep(0.5)
+                        cont, reset = self.game.minimaxPlay(1 - self.player, reset,
+                                                            evaluate=evaluate,
+                                                            enablePrint=False)
+                        self.update()
+
             elif USED_ALGORITHM == Algorithm.RANDOM:
                 cont, reset = self.game.randomPlay(1-self.player, enablePrint=False)
             self.cnt += 1
@@ -296,6 +321,7 @@ class GUI:
                 messagebox.showinfo(message="You Won!", title="Checkers")
                 window.destroy()
                 return
+            time.sleep(0.5)
             self.update()
             if reset:
                 self.cnt = 0
