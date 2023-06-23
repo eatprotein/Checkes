@@ -192,6 +192,7 @@ class GUI:
 
         # canCapture, removed, _ = self.game.playMove(self.lastX, self.lastY, x, y)
         self.highlight([])
+        time.sleep(0.3)
         self.update()
         self.cnt += 1
         self.lastX = None
@@ -238,8 +239,9 @@ class GUI:
                 messagebox.showinfo(message="You Won!", title="Checkers")
                 window.destroy()
                 return
-            time.sleep(0.5)
+            time.sleep(0.6)
             self.update()
+
             if reset:
                 self.cnt = 0
         else:
