@@ -118,6 +118,26 @@ class Checkers(object):
             bool: the given position is valid
         """
         return x >= 0 and x < self.size and y >= 0 and y < self.size
+    def isKing(self, x: int, y: int) -> bool:
+        """Check if the piece at the given position is a king
+        检查给定位置上的棋子是否为王
+        Args:
+            x (int): x position
+            y (int): y position
+
+        Returns:
+            bool: True if the piece is a king, False otherwise
+        """
+        piece = self.board[x][y]
+        if piece == self.WHITE_KING or piece == self.BLACK_KING:
+            return True
+        elif piece == self.WHITE_MAN and x == self.size - 1:
+            return True
+        elif piece == self.BLACK_MAN and x == 0:
+            return True
+        else:
+            return False
+
 
     def nextPositions(self, x: int, y: int) -> Tuple[Positions, Positions]:
         """Get the possible next positions for a given position
@@ -136,21 +156,54 @@ class Checkers(object):
         captureMoves = []
         normalMoves = []
         sign = 1 if player == self.WHITE else -1
-        # only forward for men and both forward and backward for Kings
-        rng = 2 if self.board[x][y] <= 2 else 4
-        for i in range(rng):
-            nx = x + sign * self.DX[i]
-            ny = y + sign * self.DY[i]
-            if self.isValid(nx, ny):
-                if self.board[nx][ny] == 0:
-                    normalMoves.append((nx, ny))
-                elif self.board[nx][ny] % 2 == 1 - player:
+
+        if self.isKing(x, y):  # If it's a king
+            for i in range(4):
+                nx = x + sign * self.DX[i]
+                ny = y + sign * self.DY[i]
+                while self.isValid(nx, ny):
+                    if self.board[nx][ny] == 0:
+                        normalMoves.append((nx, ny))
+                    elif self.board[nx][ny] % 2 == 1 - player:
+                        nx += sign * self.DX[i]
+                        ny += sign * self.DY[i]
+                        if self.isValid(nx, ny) and self.board[nx][ny] == 0:
+                            captureMoves.append((nx, ny))
+                            break
+                        break
+                    else:
+                        break
                     nx += sign * self.DX[i]
                     ny += sign * self.DY[i]
-                    if self.isValid(nx, ny) and self.board[nx][ny] == 0:
-                        captureMoves.append((nx, ny))
+        else:  # If it's a regular piece
+            nx = x + sign
+            for i in range(2):
+                ny = y + sign * self.DY[i]
+                if self.isValid(nx, ny):
+                    if self.board[nx][ny] == 0:
+                        normalMoves.append((nx, ny))
+                    elif self.board[nx][ny] % 2 == 1 - player:
+                        cx = nx + sign
+                        cy = ny + sign * self.DY[i]
+                        if self.isValid(cx, cy) and self.board[cx][cy] == 0:
+                            captureMoves.append((cx, cy))
 
         return normalMoves, captureMoves
+
+        # # only forward for men and both forward and backward for Kings
+        # rng = 2 if self.board[x][y] <= 2 else 4
+        # for i in range(rng):
+        #     nx = x + sign * self.DX[i]
+        #     ny = y + sign * self.DY[i]
+        #     if self.isValid(nx, ny):
+        #         if self.board[nx][ny] == 0:
+        #             normalMoves.append((nx, ny))
+        #         elif self.board[nx][ny] % 2 == 1 - player:
+        #             nx += sign * self.DX[i]
+        #             ny += sign * self.DY[i]
+        #             if self.isValid(nx, ny) and self.board[nx][ny] == 0:
+        #                 captureMoves.append((nx, ny))
+        # return normalMoves, captureMoves
 
     def nextMoves(self, player: int) -> Moves:
         """Get the next moves of the game board for a certian player
@@ -203,14 +256,23 @@ class Checkers(object):
         if self.board[nx][ny] == self.WHITE_MAN and nx == self.size - 1:
             self.board[nx][ny] = self.WHITE_KING
             return False, removed, True
-        if self.board[nx][ny] == self.BLACK_MAN and nx == 0:
+        elif self.board[nx][ny] == self.BLACK_MAN and nx == 0:
             self.board[nx][ny] = self.BLACK_KING
             return False, removed, True
 
         if abs(nx - x) != 2:
             return False, removed, False
 
-        return True, removed, False
+        # Regicide -if Man manages to capture King, he is instantly crowned King
+        if self.board[nx][ny] == self.WHITE_MAN and removed == self.BLACK_KING:
+            self.board[nx][ny] = self.WHITE_KING
+            return True, removed, True
+        elif self.board[nx][ny] == self.BLACK_MAN and removed == self.WHITE_KING:
+            self.board[nx][ny] = self.BLACK_KING
+            return True, removed, True
+        else:
+            return True, removed, False
+        # return True, removed, False
 
     def undoMove(self, x: int, y: int, nx: int, ny: int, removed=0, promoted=False):
         """Undo a move and return the board to its previous state
