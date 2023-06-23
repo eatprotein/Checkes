@@ -1,9 +1,31 @@
-from collections import Counter
 import random
-from typing import List, Tuple
-from copy import deepcopy
 
-Board = List[List[int]]
+class MyCounter:
+    def __init__(self, iterable=None):
+        self.counter = {}
+        if iterable:
+            self.update(iterable)
+
+    def update(self, iterable):
+        for item in iterable:
+            self.counter[item] = self.counter.get(item, 0) + 1
+
+    def most_common(self, n=None):
+        sorted_items = sorted(self.counter.items(), key=lambda x: x[1], reverse=True)
+        if n is None:
+            return sorted_items
+        else:
+            return sorted_items[:n]
+
+    def __getitem__(self, key):
+        return self.counter.get(key, 0)
+
+    def __setitem__(self, key, value):
+        self.counter[key] = value
+
+
+
+
 
 class Checkers(object):
     """
@@ -59,7 +81,7 @@ class Checkers(object):
                 f = not f
             self.board.append(l)
 
-        self.stateCounter = Counter()
+        self.stateCounter = MyCounter()
 
     def printBoard(self, x= None, y= None):
         """Print the game board in stdout, the given position is printed in green
