@@ -13,6 +13,10 @@ white_man_img = ImageTk.PhotoImage(Image.open('assets/white_man.png').resize((IM
 white_king_img = ImageTk.PhotoImage(Image.open('assets/white_king.png').resize((IMG_SIZE, IMG_SIZE)))
 blank_img = ImageTk.PhotoImage(Image.open('assets/blank.png').resize((IMG_SIZE, IMG_SIZE)))
 
+difficulty = tk.IntVar()
+message = tk.StringVar()
+
+
 class Mode(Enum):
     SINGLE_PLAYER = 0
     MULTIPLE_PLAYER = 1
@@ -80,6 +84,16 @@ class GUI:
         frm_counter.pack(expand=True)
         self.lbl_counter = tk.Label(master=frm_counter)
         self.lbl_counter.pack()
+
+        # Set up the message area and difficulty slider
+        panel = tk.Frame(master=window, borderwidth=5)
+        widget = tk.Scale(master=panel, variable=difficulty, orient=tk.HORIZONTAL, from_=1, to=4)
+        widget.pack(side=tk.RIGHT)
+        label = tk.Label(master=panel, text="         ")
+        label.pack(side=tk.RIGHT)
+        label = tk.Label(master=panel, textvariable=message, width=20, bg="seashell")
+        label.pack(side=tk.RIGHT)
+        panel.pack()
 
         self.update()
         nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
