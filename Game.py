@@ -142,16 +142,16 @@ class GUI:
         #         #
         #         # # self.btn[x][y].master.config(borderwidth = 2)
         #         # self.btn[x][y].master.config(highlightbackground=defaultbg, highlightthickness=0)
-
+        self.canvas.delete('highlight')
         for position in positions:
             x, y = position
             x1 = y * IMG_SIZE
             y1 = x * IMG_SIZE
             x2 = x1 + IMG_SIZE
             y2 = y1 + IMG_SIZE
-            self.canvas.create_rectangle(x1 + 2, y1 + 2, x2 - 2, y2 - 2, outline="red", width=4)
+            self.canvas.create_rectangle(x1 + 2, y1 + 2, x2 - 2, y2 - 2, outline="red", width=4, tags='highlight')
             # self.btn[x][y]["bg"] = 'yellow'
-            # # self.btn[x][y].config(highlightbackground="yellow", highlightthickness=0)
+            # # self.btn[x][y].config(highlightbackground="yellow", highlightthickness=0, tags='highlight')
 
     def click(self, event):
 

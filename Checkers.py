@@ -37,15 +37,15 @@ class Checkers(object):
 
         self.size = size
         self.board = []
-        # self.board = [[0, 0, 0, 0, 0, 0, 0, 1],
-        #               [0, 0, 0, 0, 0, 0, 0, 0],
-        #               [0, 1, 0, 1, 0, 0, 0, 0],
-        #               [0, 0, 0, 0, 0, 0, 0, 0],
-        #               [0, 0, 0, 2, 0, 0, 0, 0],
-        #               [0, 0, 0, 0, 2, 0, 0, 0],
-        #               [0, 0, 0, 2, 0, 0, 0, 0],
-        #               [0, 0, 0, 0, 0, 0, 2, 0]
-        #               ]
+        self.board = [[0, 0, 0, 0, 0, 0, 0, 0],
+                      [0, 0, 0, 0, 0, 0, 1, 0],
+                      [0, 0, 0, 0, 0, 2, 0, 0],
+                      [0, 0, 0, 0, 0, 0, 0, 0],
+                      [0, 0, 0, 0, 0, 0, 0, 0],
+                      [0, 0, 0, 0, 0, 0, 0, 0],
+                      [0, 0, 0, 0, 0, 0, 0, 0],
+                      [0, 0, 0, 0, 0, 0, 0, 0]
+                      ]
 
         piece = self.WHITE_MAN
         for i in range(size):
@@ -260,32 +260,8 @@ class Checkers(object):
         if abs(nx - x) == 2:  # capture move
             dx = nx - x
             dy = ny - y
-            # removed = self.board[x + dx // 2][y + dy // 2]
-        #     self.board[x + dx // 2][y + dy // 2] = 0  # remove captured piece
-        #
-        # # promote to king
-        # if self.board[nx][ny] == self.WHITE_MAN and nx == self.size - 1:
-        #     self.board[nx][ny] = self.WHITE_KING
-        #     return False, removed, True
-        # elif self.board[nx][ny] == self.BLACK_MAN and nx == 0:
-        #     self.board[nx][ny] = self.BLACK_KING
-        #     return False, removed, True
-        #
-        # if abs(nx - x) != 2:
-        #     return False, removed, False
-        #
-        # # Regicide -if Man manages to capture King, he is instantly crowned King
-        # if self.board[nx][ny] == self.WHITE_MAN and removed == self.BLACK_KING:
-        #     self.board[nx][ny] = self.WHITE_KING
-        #     return False, removed, True
-        # elif self.board[nx][ny] == self.BLACK_MAN and removed == self.WHITE_KING:
-        #     self.board[nx][ny] = self.BLACK_KING
-        #     return False, removed, True
-        # else:
-        #     return True, removed, False
-        # # return True, removed, False
-
             removed = self.board[x + dx // 2][y + dy // 2]
+
             # Check if captured piece is a king
             if self.isKing(x + dx // 2, y + dy // 2):
                 if self.board[nx][ny] == self.WHITE_MAN:
@@ -297,9 +273,11 @@ class Checkers(object):
             else:
                 if self.board[nx][ny] == self.WHITE_MAN and nx == self.size - 1:
                     self.board[nx][ny] = self.WHITE_KING
+                    self.board[x + dx // 2][y + dy // 2] = 0
                     return False, removed, True
                 if self.board[nx][ny] == self.BLACK_MAN and nx == 0:
                     self.board[nx][ny] = self.BLACK_KING
+                    self.board[x + dx // 2][y + dy // 2] = 0
                     return False, removed, True
 
             self.board[x + dx // 2][y + dy // 2] = 0  # remove captured piece
