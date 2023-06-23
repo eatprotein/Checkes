@@ -564,6 +564,8 @@ class Checkers(object):
             reset (bool): true when there is a captured piece, 
                 used to reset the counter of the draw condition.
         """
+        # 打印调试
+        print(f"深度是：{maxDepth}")
 
         if moves == None:
             moves = self.nextMoves(player)

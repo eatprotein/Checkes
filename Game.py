@@ -29,9 +29,7 @@ CHECKER_SIZE = 8
 GAME_MODE = Mode.SINGLE_PLAYER
 STARTING_PLAYER = Checkers.BLACK
 USED_ALGORITHM = Algorithm.MINIMAX
-MAX_DEPTH = 5
 EVALUATION_FUNCTION = Checkers.evaluate2
-INCREASE_DEPTH = True
 
 class GUI:
     
@@ -40,12 +38,24 @@ class GUI:
         self.game = Checkers(CHECKER_SIZE)
         self.history = [self.game.getBoard()]
         self.historyPtr = 0
+        difficulty.set(4)
+        # Set up the message area and difficulty slider
+        panel = tk.Frame(master=window, borderwidth=5)
+        widget = tk.Scale(master=panel, variable=difficulty, orient=tk.HORIZONTAL, from_=1, to=4)
+        widget.pack(side=tk.RIGHT)
+        label = tk.Label(master=panel, text="         ")
+        label.pack(side=tk.RIGHT)
+        label = tk.Label(master=panel, textvariable=message, width=20, bg="seashell")
+        label.pack(side=tk.RIGHT)
+        panel.pack()
 
-        self.maxDepth = MAX_DEPTH
+        # Change difficulty with depth
+        self.maxDepth = difficulty.get()
 
         self.player = STARTING_PLAYER
         if self.player == Checkers.WHITE and GAME_MODE == Mode.SINGLE_PLAYER:
             if USED_ALGORITHM == Algorithm.MINIMAX:
+                print("AI开始行动了")
                 self.game.minimaxPlay(1-self.player, maxDepth=self.maxDepth, evaluate=EVALUATION_FUNCTION, enablePrint=False)
             elif USED_ALGORITHM == Algorithm.RANDOM:
                 self.game.randomPlay(1-self.player, enablePrint=False)
@@ -84,16 +94,6 @@ class GUI:
         frm_counter.pack(expand=True)
         self.lbl_counter = tk.Label(master=frm_counter)
         self.lbl_counter.pack()
-
-        # Set up the message area and difficulty slider
-        panel = tk.Frame(master=window, borderwidth=5)
-        widget = tk.Scale(master=panel, variable=difficulty, orient=tk.HORIZONTAL, from_=1, to=4)
-        widget.pack(side=tk.RIGHT)
-        label = tk.Label(master=panel, text="         ")
-        label.pack(side=tk.RIGHT)
-        label = tk.Label(master=panel, textvariable=message, width=20, bg="seashell")
-        label.pack(side=tk.RIGHT)
-        panel.pack()
 
         self.update()
         nextPositions = [move[0] for move in self.game.nextMoves(self.player)]
@@ -185,16 +185,22 @@ class GUI:
         if GAME_MODE == Mode.SINGLE_PLAYER:
             cont, reset = True, False
             if USED_ALGORITHM == Algorithm.MINIMAX:
-                evaluate = EVALUATION_FUNCTION
-                if self.cnt > 20:
-                    evaluate = Checkers.endGame
-                    if INCREASE_DEPTH:
-                        self.maxDepth = 7
+                self.maxDepth = difficulty.get()
+                if self.maxDepth == 1:
+                    print("这是傻瓜模式")
+
+                    cont, reset = self.game.randomPlay(1 - self.player, enablePrint=False)
                 else:
-                    evaluate = Checkers.evaluate2
-                    self.maxDepth = MAX_DEPTH
-                    
-                cont, reset = self.game.minimaxPlay(1-self.player, maxDepth=self.maxDepth, evaluate=evaluate, enablePrint=False)
+                    print("AI开始行动了")
+                    evaluate = EVALUATION_FUNCTION
+                    cont, reset = self.game.minimaxPlay(1 - self.player, maxDepth=self.maxDepth, evaluate=evaluate,
+                                                        enablePrint=False)
+                # if self.cnt > 20:
+                #     evaluate = Checkers.endGame
+                #     if INCREASE_DEPTH:
+                #         self.maxDepth = 7
+                # else:
+                #     evaluate = Checkers.evaluate2
             elif USED_ALGORITHM == Algorithm.RANDOM:
                 cont, reset = self.game.randomPlay(1-self.player, enablePrint=False)
             self.cnt += 1
