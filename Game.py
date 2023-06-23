@@ -123,7 +123,6 @@ class GUI:
                 
                 f = not f
         self.lbl_counter['text'] = f'Moves without capture: {self.cnt}'
-
         window.update()
     
     def highlight(self, positions: Positions):
@@ -164,7 +163,9 @@ class GUI:
                 self.highlight(nextPositions)
             return
 
-        canCapture, removed, _ = self.game.playMove(self.lastX, self.lastY, x, y)
+        canCapture, removed, promoted= self.game.playMove(self.lastX, self.lastY, x, y)
+
+        # canCapture, removed, _ = self.game.playMove(self.lastX, self.lastY, x, y)
         self.highlight([])
         self.update()
         self.cnt += 1
@@ -214,8 +215,6 @@ class GUI:
                 return
             time.sleep(0.5)
             self.update()
-
-
             if reset:
                 self.cnt = 0
         else:
