@@ -149,7 +149,6 @@ class Checkers(object):
                     ny += sign * self.DY[i]
                     if self.isValid(nx, ny) and self.board[nx][ny] == 0:
                         captureMoves.append((nx, ny))
-
         return normalMoves, captureMoves
 
     def nextMoves(self, player: int) -> Moves:
